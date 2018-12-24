@@ -3,7 +3,9 @@
 ## Prerequirements
 
 Install required packages
+```
 pip install selenium
+```
 
 ### How to use
 
