@@ -1,8 +1,14 @@
 import contextlib
 import time
+import speedtest
 
 from selenium.webdriver.support.expected_conditions import staleness_of
 from selenium.webdriver.support.wait import WebDriverWait
+
+def speed_measure():
+    st = speedtest.Speedtest()
+    st.get_best_server()
+    return st.download()
 
 def timeit(method):
     def timed(*args, **kw):
@@ -24,9 +30,11 @@ def detectTimings(name, driver):
     domComplete = driver.execute_script("return window.performance.timing.domComplete")
     backendPerformance = responseStart - navigationStart
     frontendPerformance = domComplete - responseStart
+    download_speed = speed_measure()
     print(name)
     print("Back End: %s" % backendPerformance)
     print("Front End: %s" % frontendPerformance)
+    print("Download Speed: %s" % download_speed)
     return backendPerformance, frontendPerformance
 
 @contextlib.contextmanager
