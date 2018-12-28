@@ -1,6 +1,8 @@
 import contextlib
 import time
 import speedtest
+import datetime
+import os.path
 
 from selenium.webdriver.support.expected_conditions import staleness_of
 from selenium.webdriver.support.wait import WebDriverWait
@@ -24,17 +26,34 @@ def timeit(method):
         return result
     return timed
 
+def write_info_to_file(url, backend, frontend, connection_speed):
+    file_name = "results.csv"
+    separator=","
+    nextline="\r"
+    if(not os.path.isfile(file_name) or os.stat(file_name).st_size == 0):
+        file = open(file_name, "w+")
+        file.write("TIME" + separator + "URL" + separator + "BACKEND"
+                   + separator + "FRONTEND" + separator + "CONNECTION" + nextline)
+        file.close()
+
+    file = open(file_name, "a+")
+    file.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")+separator+url+separator+str(backend)
+               +separator+str(frontend)+separator+str(connection_speed)+nextline)
+    file.close()
+
 def detectTimings(name, driver):
     navigationStart = driver.execute_script("return window.performance.timing.navigationStart")
     responseStart = driver.execute_script("return window.performance.timing.responseStart")
     domComplete = driver.execute_script("return window.performance.timing.domComplete")
     backendPerformance = responseStart - navigationStart
     frontendPerformance = domComplete - responseStart
-    download_speed = speed_measure()
+    '''speed_measure()'''
+    download_speed = ""
     print(name)
     print("Back End: %s" % backendPerformance)
     print("Front End: %s" % frontendPerformance)
     print("Download Speed: %s" % download_speed)
+    write_info_to_file(driver.current_url, backendPerformance, frontendPerformance, download_speed)
     return backendPerformance, frontendPerformance
 
 @contextlib.contextmanager
